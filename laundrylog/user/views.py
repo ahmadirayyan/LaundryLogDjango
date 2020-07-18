@@ -3,10 +3,28 @@ from . import transformer
 from .models import Users
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
+from laundrylog.jwt import JWTAuth
+from laundrylog.middleware import jwtRequired
 
 # Create your views here.
 @csrf_exempt
+def auth(request):
+    if request.method == 'POST':
+        json_data = json.loads(request.body)
+        email = json_data['email']
+        user = Users.objects.filter(email=email).first()
+        if not user:
+            return Response.badRequest(message='User not found')
+        if not check_password(json_data['password'], user.password):
+            return Response.badRequest(message='Wrong email and password combination')
+        user = transformer.singleTransform(user)
+        jwt = JWTAuth()
+        user['token'] = jwt.encode({'id': user['id']})
+        return Response.ok(values=user, message='Login success')
+
+@csrf_exempt
+@jwtRequired
 def index(request):
     if request.method == 'GET':
         user = Users.objects.all()
@@ -25,6 +43,7 @@ def index(request):
         )
 
 @csrf_exempt
+@jwtRequired
 def show(request, id):
     if request.method == 'GET':
         user = Users.objects.filter(id=id).first()
