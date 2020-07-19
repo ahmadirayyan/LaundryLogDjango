@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'user.apps.UserConfig',
+    'item.apps.ItemConfig',
     'corsheaders',
 ]
 
@@ -143,5 +144,5 @@ STATIC_URL = '/static/'
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8081',
+    'http://127.0.0.1:8000',
 )

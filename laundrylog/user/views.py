@@ -8,6 +8,7 @@ from laundrylog.jwt import JWTAuth
 from laundrylog.middleware import jwtRequired
 
 # Create your views here.
+@csrf_exempt
 def auth(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
@@ -22,13 +23,17 @@ def auth(request):
         user['token'] = jwt.encode({'id': user['id']})
         return Response.ok(values=user, message='Login success')
 
+@csrf_exempt
 @jwtRequired
 def index(request):
     if request.method == 'GET':
         user = Users.objects.all()
         user = transformer.transform(user)
         return Response.ok(values=user)
-    elif request.method == 'POST':
+
+@csrf_exempt
+def signup(request):
+    if request.method == 'POST':
         json_data = json.loads(request.body)
         user = Users()
         user.name = json_data['name']
@@ -40,6 +45,7 @@ def index(request):
             message = 'User created'
         )
 
+@csrf_exempt
 @jwtRequired
 def show(request, id):
     if request.method == 'GET':
@@ -62,7 +68,6 @@ def show(request, id):
             message = 'User updated'
         )
     elif request.method == 'DELETE':
-        user = Users.objects.filter(id=id).first()
         user = Users.objects.filter(id=id).first()
         if not user:
             return Response.badRequest(message='User not found')

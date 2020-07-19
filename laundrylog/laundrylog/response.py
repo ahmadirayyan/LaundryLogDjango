@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 
 class Response:
-
     def base(self, values=None, message='', status=200):
         if values is None:
             values = []
